@@ -1,50 +1,19 @@
-// Module that sets up an AWS automatic mode deployment in within professional scope
-// shall also create a valid manual mode IAM role
-// is hard-coded to integration stack for now...
+// Module that sets up an AWS SIEMLESS deployment
+// Resources created:
+//   - AWS IAM role for the deployment to use in the provided aws account
+//   - Alert Logic credential to store the generated IAM role
+//   - Alert Logic deployment linking to the provided aws account
 
-// Used to retrieve the aws account_id of the authenticated provider
+// Used to retrieve the aws account_id of the authenticated provider of the root module
 data "aws_caller_identity" "current" {}
 
-resource "aws_iam_role" "automatic_mode" {
-  assume_role_policy = data.aws_iam_policy_document.automatic_mode.json
-}
-
-resource "aws_iam_role_policy" "manual_mode" {
-  policy = file("${path.module}/internal/automatic_mode_policy.json")
-  role = aws_iam_role.automatic_mode.id
-}
-
-data "aws_iam_policy_document" "automatic_mode" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    condition {
-      test     = "StringEquals"
-      variable = "sts:ExternalId"
-      values = [var.al_account_id]
-    }
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::948063967832:root"] // Integration
-    }
-    effect = "Allow"
-  }
-  version = "2012-10-17"
-}
-
-resource "alertlogic_credential" "automatic_credential" {
-  account_id  = var.al_account_id
-  name        = "dgreening-terraform-credential1"
-  secret_type = "aws_iam_role"
-  secret_arn  = aws_iam_role.automatic_mode.arn
-}
-
 resource "alertlogic_deployment" "manual_deployment" {
-  account_id    = var.al_account_id
+  account_id    = var.alertlogic_account_id
   name          = "aa-terraform-test"
   platform_type = "aws"
   platform_id   = data.aws_caller_identity.current.account_id
-  mode          = "automatic"
-  depends_on = ["alertlogic_credential.automatic_credential"]
+  mode          = var.alertlogic_deployment_mode
+  depends_on = ["alertlogic_credential.discover_credential"]
 
   scope_include {
     type = "vpc"
@@ -53,9 +22,9 @@ resource "alertlogic_deployment" "manual_deployment" {
   }
 
   credential {
-      id = alertlogic_credential.automatic_credential.id
+      id = alertlogic_credential.discover_credential.id
       purpose = "discover"
   }
-  cloud_defender_location_id = "defender-us-ashburn"
+  cloud_defender_location_id = var.alertlogic_datacenter
   cloud_defender_enabled = false
 }
