@@ -1,5 +1,6 @@
 provider aws {
-  profile = "dev-agent-and-appliance"
+  profile = "collect"
+  region = "us-east-2"
 }
 
 provider alertlogic {

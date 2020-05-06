@@ -37,7 +37,6 @@ data "aws_iam_policy_document" "iam_policy_doc" {
     effect = "Allow"
     version = "2012-10-17"
   }
-  version = "2012-10-17"
 }
 
 resource "alertlogic_credential" "discover_credential" {
