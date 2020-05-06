@@ -35,7 +35,6 @@ data "aws_iam_policy_document" "iam_policy_doc" {
       identifiers = [lookup(local.alertlogic_aws_accounts, var.alertlogic_stack)]
     }
     effect = "Allow"
-    version = "2012-10-17"
   }
 }
 
