@@ -20,13 +20,3 @@ variable alertlogic_stack {
   description = "The Alert Logic stack to provision resources under. Either 'integration', 'cd-us-production' or 'cd-uk-production'"
   default = "integration"
 }
-
-variable aws_region {
-  type = string
-  description = "The AWS region to protect."
-}
-
-variable aws_vpc_id {
-  type = string
-  description = "The AWS vpc to protect."
-}

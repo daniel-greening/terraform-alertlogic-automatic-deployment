@@ -15,12 +15,6 @@ resource "alertlogic_deployment" "manual_deployment" {
   mode          = var.alertlogic_deployment_mode
   depends_on = ["alertlogic_credential.discover_credential"]
 
-  scope_include {
-    type = "vpc"
-    key = "/aws/${var.aws_region}/vpc/${var.aws_vpc_id}"
-    policy_id = "D12D5E67-166C-474F-87AA-6F86FC9FB9BC"
-  }
-
   credential {
       id = alertlogic_credential.discover_credential.id
       purpose = "discover"
